@@ -16,6 +16,7 @@ defmodule SampleAppWeb.Router do
   scope "/", SampleAppWeb do
     pipe_through :browser
 
+    get "/hello", PageController, :hello
     get "/", PageController, :index
   end
 
