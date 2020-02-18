@@ -1,0 +1,13 @@
+<footer class="footer">
+  <small>
+    The <a href="https://www.phoenixframework.org/">Phoenix Framework</a>
+    by <a href="http://chrismccord.com/">Chris McCord</a>
+  </small>
+  <nav>
+    <ul>
+      <li><%= link "About",   to: Routes.static_page_path(@conn, :about) %></li>
+      <li><%= link "Contact", to: Routes.static_page_path(@conn, :contact) %></li>
+      <li><a href="https://www.phoenixframework.org/blog">Blog</a></li>
+    </ul>
+  </nav>
+</footer>

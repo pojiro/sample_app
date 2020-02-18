@@ -4,6 +4,7 @@ const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const TerserPlugin = require('terser-webpack-plugin');
 const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
+const { CleanWebpackPlugin } = require('clean-webpack-plugin')
 
 module.exports = (env, options) => ({
   optimization: {
@@ -16,8 +17,8 @@ module.exports = (env, options) => ({
     './js/app.js': glob.sync('./vendor/**/*.js').concat(['./js/app.js'])
   },
   output: {
-    filename: 'app.js',
-    path: path.resolve(__dirname, '../priv/static/js')
+    filename: './js/app.js',
+    path: path.resolve(__dirname, '../priv/static')
   },
   module: {
     rules: [
@@ -29,13 +30,29 @@ module.exports = (env, options) => ({
         }
       },
       {
-        test: /\.css$/,
-        use: [MiniCssExtractPlugin.loader, 'css-loader']
+        test: /\.s?css$/,
+        use: [MiniCssExtractPlugin.loader, 'css-loader', 'sass-loader']
+      },
+      {
+        test: /\.ttf|woff2?|eot|svg$/,
+        use: {
+          loader: 'file-loader',
+          options: {
+            name: '[name].[ext]',
+            outputPath: './fonts',
+            esModule: false,
+          }
+        }
       }
     ]
   },
   plugins: [
-    new MiniCssExtractPlugin({ filename: '../css/app.css' }),
-    new CopyWebpackPlugin([{ from: 'static/', to: '../' }])
+    new MiniCssExtractPlugin({ filename: './css/app.css' }),
+    new CopyWebpackPlugin([{ from: 'static/', to: './' }]),
+    new CleanWebpackPlugin({
+      dry: false, verbose: true,
+      cleanStaleWebpackAssets: false,
+      protectWebpackAssets: true,
+      cleanOnceBeforeBuildPatterns: ["**/*"]})
   ]
 });
