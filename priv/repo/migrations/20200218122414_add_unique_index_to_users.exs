@@ -12,10 +12,12 @@ defmodule SampleApp.Repo.Migrations.AddUniqueIndexToUsers do
   end
 
   def down do
+    drop unique_index(:users, [:email])
+
     alter table("users") do
       modify :email, :string
     end
 
-    drop unique_index(:users, [:email])
+    execute "DROP EXTENSION IF EXISTS citext"
   end
 end
