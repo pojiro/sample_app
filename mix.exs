@@ -45,7 +45,8 @@ defmodule SampleApp.MixProject do
       {:plug_cowboy, "~> 2.0"},
       {:git_hooks, only: [:dev, :test], runtime: false},
       {:mix_test_watch, "~> 1.0", only: :dev, runtime: false},
-      {:ex_unit_notifier, "~> 0.1", only: :test}
+      {:ex_unit_notifier, "~> 0.1", only: :test},
+      {:pbkdf2_elixir, "~> 1.0"}
     ]
   end
 
