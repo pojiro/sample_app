@@ -3,9 +3,14 @@ defmodule SampleAppWeb.UserControllerTest do
 
   # alias SampleApp.Accounts
 
-  # @create_attrs %{email: "some email", name: "some name"}
+  @create_attrs %{
+    email: "create@exmaple.com",
+    name: "some name",
+    password: "super secret",
+    password_confirmation: "super secret"
+  }
   # @update_attrs %{email: "some updated email", name: "some updated name"}
-  # @invalid_attrs %{email: nil, name: nil}
+  @invalid_attrs %{email: nil, name: nil}
 
   # def fixture(:user) do
   #  {:ok, user} = Accounts.create_user(@create_attrs)
@@ -21,27 +26,31 @@ defmodule SampleAppWeb.UserControllerTest do
 
   describe "new user" do
     test "renders form", %{conn: conn} do
-      conn = get(conn, "/signup")
+      conn = get(conn, Routes.user_path(conn, :new))
       assert html_response(conn, 200) =~ "Sign up"
     end
   end
 
-  # describe "create user" do
-  #  test "redirects to show when data is valid", %{conn: conn} do
-  #    conn = post(conn, Routes.user_path(conn, :create), user: @create_attrs)
+  describe "create user" do
+    test "redirects to show when data is valid", %{conn: conn} do
+      conn = post(conn, Routes.user_path(conn, :create), user: @create_attrs)
 
-  #    assert %{id: id} = redirected_params(conn)
-  #    assert redirected_to(conn) == Routes.user_path(conn, :show, id)
+      assert %{id: id} = redirected_params(conn)
+      assert redirected_to(conn) == Routes.user_path(conn, :show, id)
 
-  #    conn = get(conn, Routes.user_path(conn, :show, id))
-  #    assert html_response(conn, 200) =~ "Show User"
-  #  end
+      conn = get(conn, Routes.user_path(conn, :show, id))
+      html = html_response(conn, 200)
+      assert html =~ "Welcome to the Sample App!"
+      assert html =~ "<p class=\"alert alert-success"
+    end
 
-  #  test "renders errors when data is invalid", %{conn: conn} do
-  #    conn = post(conn, Routes.user_path(conn, :create), user: @invalid_attrs)
-  #    assert html_response(conn, 200) =~ "Sign up"
-  #  end
-  # end
+    test "renders errors when data is invalid", %{conn: conn} do
+      conn = post(conn, Routes.user_path(conn, :create), user: @invalid_attrs)
+      html = html_response(conn, 200)
+      assert html =~ "Sign up"
+      assert html =~ "<p class=\"alert alert-danger"
+    end
+  end
 
   # describe "edit user" do
   #  setup [:create_user]
