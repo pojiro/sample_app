@@ -6,7 +6,12 @@ defmodule SampleApp.AccountsTest do
   describe "users" do
     alias SampleApp.Accounts.User
 
-    @valid_attrs %{email: "valid_attrs@email.com", name: "some name"}
+    @valid_attrs %{
+      email: "valid_attrs@email.com",
+      name: "some name",
+      password: "super secret",
+      password_confirmation: "super secret"
+    }
     @update_attrs %{email: "update_attrs@email.com", name: "some updated name"}
     @invalid_attrs %{email: nil, name: nil}
 

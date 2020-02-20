@@ -56,6 +56,14 @@ defmodule SampleApp.Accounts do
   end
 
   @doc """
+  """
+  def register_user(attrs \\ %{}) do
+    %User{}
+    |> User.registration_changeset(attrs)
+    |> Repo.insert()
+  end
+
+  @doc """
   Updates a user.
 
   ## Examples
