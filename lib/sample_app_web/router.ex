@@ -26,7 +26,7 @@ defmodule SampleAppWeb.Router do
 
     get "/signup", UserController, :new
     post "/signup", UserController, :create
-    resources "users", UserController, except: [:new, :create]
+    resources "/users", UserController, except: [:new, :create]
   end
 
   # Other scopes may use custom stacks.
