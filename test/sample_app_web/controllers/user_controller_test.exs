@@ -2,15 +2,11 @@ defmodule SampleAppWeb.UserControllerTest do
   use SampleAppWeb.ConnCase
 
   # alias SampleApp.Accounts
+  alias SampleAppWeb.Auth
 
-  @create_attrs %{
-    email: "create@exmaple.com",
-    name: "some name",
-    password: "super secret",
-    password_confirmation: "super secret"
-  }
+  @create_attrs user_attrs()
   # @update_attrs %{email: "some updated email", name: "some updated name"}
-  @invalid_attrs %{email: nil, name: nil}
+  @invalid_attrs user_attrs(%{email: "", name: ""})
 
   # def fixture(:user) do
   #  {:ok, user} = Accounts.create_user(@create_attrs)
@@ -31,7 +27,7 @@ defmodule SampleAppWeb.UserControllerTest do
     end
   end
 
-  describe "create user" do
+  describe "create user, sign up" do
     test "redirects to show when data is valid", %{conn: conn} do
       conn = post(conn, Routes.user_path(conn, :create), user: @create_attrs)
 
@@ -42,6 +38,7 @@ defmodule SampleAppWeb.UserControllerTest do
       html = html_response(conn, 200)
       assert html =~ "Welcome to the Sample App!"
       assert html =~ "<p class=\"alert alert-success"
+      assert Auth.logged_in?(conn)
     end
 
     test "renders errors when data is invalid", %{conn: conn} do

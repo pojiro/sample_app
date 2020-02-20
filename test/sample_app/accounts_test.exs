@@ -3,41 +3,30 @@ defmodule SampleApp.AccountsTest do
 
   alias SampleApp.Accounts
 
+  @invalid_attrs user_attrs(%{name: "", email: ""})
+  @update_attrs user_attrs(%{name: "updater", email: "update@example.com"})
+
   describe "users" do
     alias SampleApp.Accounts.User
 
-    @valid_attrs %{
-      email: "valid_attrs@email.com",
-      name: "some name",
-      password: "super secret",
-      password_confirmation: "super secret"
-    }
-    @update_attrs %{email: "update_attrs@email.com", name: "some updated name"}
-    @invalid_attrs %{email: nil, name: nil}
-
-    def user_fixture(attrs \\ %{}) do
-      {:ok, user} =
-        attrs
-        |> Enum.into(@valid_attrs)
-        |> Accounts.create_user()
-
-      user
-    end
-
     test "list_users/0 returns all users" do
       user = user_fixture()
-      assert Accounts.list_users() == [user]
+      [listed_user] = Accounts.list_users()
+      assert listed_user.name == user.name
+      assert listed_user.email == user.email
     end
 
     test "get_user!/1 returns the user with given id" do
       user = user_fixture()
-      assert Accounts.get_user!(user.id) == user
+      got_user = Accounts.get_user!(user.id)
+      assert got_user.name == user.name
+      assert got_user.email == user.email
     end
 
     test "create_user/1 with valid data creates a user" do
-      assert {:ok, %User{} = user} = Accounts.create_user(@valid_attrs)
-      assert user.email == @valid_attrs.email
-      assert user.name == "some name"
+      assert {:ok, %User{} = user} = Accounts.create_user(user_attrs())
+      assert user.email == user_attrs().email
+      assert user.name == user_attrs().name
     end
 
     test "create_user/1 with invalid data returns error changeset" do
@@ -48,13 +37,15 @@ defmodule SampleApp.AccountsTest do
       user = user_fixture()
       assert {:ok, %User{} = user} = Accounts.update_user(user, @update_attrs)
       assert user.email == @update_attrs.email
-      assert user.name == "some updated name"
+      assert user.name == @update_attrs.name
     end
 
     test "update_user/2 with invalid data returns error changeset" do
       user = user_fixture()
       assert {:error, %Ecto.Changeset{}} = Accounts.update_user(user, @invalid_attrs)
-      assert user == Accounts.get_user!(user.id)
+      got_user = Accounts.get_user!(user.id)
+      assert got_user.name == user.name
+      assert got_user.email == user.email
     end
 
     test "delete_user/1 deletes the user" do
@@ -69,12 +60,12 @@ defmodule SampleApp.AccountsTest do
     end
 
     test "enforces unique email" do
-      assert {:ok, %User{id: id} = user} = Accounts.create_user(@valid_attrs)
+      assert {:ok, %User{id: id} = user} = Accounts.register_user(user_attrs())
 
       assert {:error, changeset} =
-               %{email: String.upcase(@valid_attrs.email)}
-               |> Enum.into(@valid_attrs)
-               |> Accounts.create_user()
+               %{email: String.upcase(user_attrs().email)}
+               |> Enum.into(user_attrs())
+               |> Accounts.register_user()
 
       assert %{email: ["has already been taken"]} = errors_on(changeset)
 

@@ -3,15 +3,6 @@ defmodule SampleApp.UserTest do
 
   alias SampleApp.Accounts.User
 
-  defp user_attrs(attrs) do
-    Enum.into(attrs, %{
-      name: "test",
-      email: "test@example.com",
-      password: "super secret",
-      password_confirmation: "super secret"
-    })
-  end
-
   def user_changeset(attrs \\ %{}) do
     User.changeset(%User{}, user_attrs(attrs))
   end

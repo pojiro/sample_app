@@ -5,7 +5,23 @@
       <ul class="nav navbar-nav navbar-right">
         <li><%= link "Home",   to: Routes.static_page_path(@conn, :home) %></li>
         <li><%= link "Help",   to: Routes.static_page_path(@conn, :help) %></li>
-        <li><%= link "Log in", to: '#' %></li>
+        <%= if SampleAppWeb.Auth.logged_in?(@conn) do %>
+          <li class="dropdown">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+              Account <b class="caret"></b>
+            </a>
+            <ul class="dropdown-menu">
+              <li><%= link "Profile", to: Routes.user_path(@conn, :show, SampleAppWeb.Auth.current_user(@conn)) %></li>
+              <li><%= link "Settings", to: '#' %></li>
+              <li class="divider"></li>
+              <li>
+                <%= link "Log out", to: Routes.session_path(@conn, :delete), method: :delete %>
+              </li>
+            </ul>
+          </li>
+        <% else %>
+          <li><%= link "Log in", to: Routes.session_path(@conn, :new) %></li>
+        <% end %>
       </ul>
     </nav>
   </div>
