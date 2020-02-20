@@ -5,6 +5,7 @@ const TerserPlugin = require('terser-webpack-plugin');
 const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin')
+const webpack = require('webpack')
 
 module.exports = (env, options) => ({
   optimization: {
@@ -53,6 +54,7 @@ module.exports = (env, options) => ({
       dry: false, verbose: true,
       cleanStaleWebpackAssets: false,
       protectWebpackAssets: true,
-      cleanOnceBeforeBuildPatterns: ["**/*"]})
+      cleanOnceBeforeBuildPatterns: ["**/*"]}),
+    new webpack.ProvidePlugin({jQuery: "jquery"})
   ]
 });

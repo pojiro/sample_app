@@ -3,6 +3,7 @@ defmodule SampleAppWeb.UserController do
 
   alias SampleApp.Accounts
   alias SampleApp.Accounts.User
+  alias SampleAppWeb.Auth
 
   def index(conn, _params) do
     users = Accounts.list_users()
@@ -18,6 +19,7 @@ defmodule SampleAppWeb.UserController do
     case Accounts.register_user(user_params) do
       {:ok, user} ->
         conn
+        |> Auth.login(user)
         |> put_flash(:success, "Welcome to the Sample App!")
         |> redirect(to: Routes.user_path(conn, :show, user))
 

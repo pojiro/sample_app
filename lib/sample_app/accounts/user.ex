@@ -29,7 +29,18 @@ defmodule SampleApp.Accounts.User do
     |> changeset(attrs)
     |> cast(attrs, [:password])
     |> validate_required([:password])
-    |> validate_length(:password, min: 6)
+    |> validate_length(:password, min: 6, max: 100)
     |> validate_confirmation(:password, required: true, message: "does not match password")
+    |> put_pass_hash()
+  end
+
+  defp put_pass_hash(changeset) do
+    case changeset do
+      %Ecto.Changeset{valid?: true, changes: %{password: password}} ->
+        put_change(changeset, :password_hash, Pbkdf2.hash_pwd_salt(password))
+
+      _ ->
+        changeset
+    end
   end
 end

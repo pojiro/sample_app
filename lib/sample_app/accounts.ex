@@ -37,6 +37,12 @@ defmodule SampleApp.Accounts do
   """
   def get_user!(id), do: Repo.get!(User, id)
 
+  @doc false
+  def get_user(id), do: Repo.get(User, id)
+
+  @doc false
+  def get_user_by(params), do: Repo.get_by(User, params)
+
   @doc """
   Creates a user.
 
@@ -108,5 +114,25 @@ defmodule SampleApp.Accounts do
   """
   def change_user(%User{} = user) do
     User.changeset(user, %{})
+  end
+
+  @doc false
+  def authenticate_by_email_and_password(email, password) do
+    get_user_by(email: email) |> verify_user(password)
+  end
+
+  defp verify_user(nil, password) do
+    Pbkdf2.no_user_verify()
+    {:error, :not_found}
+  end
+
+  defp verify_user(user, password) do
+    cond do
+      Pbkdf2.verify_pass(password, user.password_hash) ->
+        {:ok, user}
+
+      true ->
+        {:error, :unauthorized}
+    end
   end
 end

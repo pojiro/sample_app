@@ -16,3 +16,6 @@ config :sample_app, SampleAppWeb.Endpoint,
 
 # Print only warnings and errors during test
 config :logger, level: :warn
+
+# ease up the number of hashing rounds to speed up test
+config :pbkdf2_elixir, :rounds, 1

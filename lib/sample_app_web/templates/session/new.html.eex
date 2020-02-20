@@ -1,0 +1,20 @@
+<h1>Log in</h1>
+
+<div class="row">
+  <div class="col-md-6 col-md-offset-3">
+    <%= form_for @conn, Routes.session_path(@conn, :create), [as: :session], fn f -> %>
+
+      <%= label f, :email %>
+      <%= email_input f, :email, class: 'form-control' %>
+      <%= error_tag f, :email %>
+
+      <%= label f, :password %>
+      <%= password_input f, :password, class: 'form-control' %>
+      <%= error_tag f, :password %>
+
+      <%= content_tag :input, nil, type: "submit", class: "btn btn-primary", value: "Log in" %>
+    <% end %>
+
+    <p>New user? <%= link "Sign up now!", to: Routes.user_path(@conn, :new) %></p>
+  </div>
+</div>

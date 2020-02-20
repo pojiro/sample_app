@@ -26,6 +26,9 @@ defmodule SampleAppWeb.Router do
 
     get "/signup", UserController, :new
     post "/signup", UserController, :create
+    get "/login", SessionController, :new
+    post "/login", SessionController, :create
+    delete "/login", SessionController, :delete
     resources "/users", UserController, except: [:new, :create]
   end
 
