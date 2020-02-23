@@ -7,6 +7,8 @@ defmodule SampleApp.Accounts.User do
     field :name, :string
     field :password, :string, virtual: true
     field :password_hash, :string
+    field :remember_token, :string, virtual: true
+    field :remember_hash, :string
 
     timestamps()
   end
@@ -36,8 +38,24 @@ defmodule SampleApp.Accounts.User do
 
   defp put_pass_hash(changeset) do
     case changeset do
-      %Ecto.Changeset{valid?: true, changes: %{password: password}} ->
-        put_change(changeset, :password_hash, Pbkdf2.hash_pwd_salt(password))
+      %Ecto.Changeset{valid?: true, changes: %{password: pass}} ->
+        put_change(changeset, :password_hash, Pbkdf2.hash_pwd_salt(pass))
+
+      _ ->
+        changeset
+    end
+  end
+
+  def remembrance_changeset(user, attrs) do
+    user
+    |> cast(attrs, [:remember_token])
+    |> put_token_hash()
+  end
+
+  defp put_token_hash(changeset) do
+    case changeset do
+      %Ecto.Changeset{valid?: true, changes: %{remember_token: token}} ->
+        put_change(changeset, :remember_hash, Pbkdf2.hash_pwd_salt(token))
 
       _ ->
         changeset

@@ -12,6 +12,11 @@
       <%= password_input f, :password, class: 'form-control' %>
       <%= error_tag f, :password %>
 
+      <%= label f, :remember_me, class: "checkbox inline" do %>
+        <%= checkbox f, :remember_me %>
+        <span>Remember me on this computer</span>
+      <% end %>
+
       <%= content_tag :input, nil, type: "submit", class: "btn btn-primary", value: "Log in" %>
     <% end %>
 

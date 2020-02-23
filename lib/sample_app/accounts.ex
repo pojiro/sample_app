@@ -87,6 +87,13 @@ defmodule SampleApp.Accounts do
     |> Repo.update()
   end
 
+  @doc false
+  def remember_user(%User{} = user, %{remember_token: _token} = attrs) do
+    user
+    |> User.remembrance_changeset(attrs)
+    |> Repo.update()
+  end
+
   @doc """
   Deletes a user.
 
@@ -117,18 +124,24 @@ defmodule SampleApp.Accounts do
   end
 
   @doc false
-  def authenticate_by_email_and_password(email, password) do
-    get_user_by(email: email) |> verify_user(password)
-  end
-
-  defp verify_user(nil, password) do
+  def authenticate_user(nil, _) do
     Pbkdf2.no_user_verify()
     {:error, :not_found}
   end
 
-  defp verify_user(user, password) do
+  def authenticate_user(%User{} = user, password: password) do
     cond do
       Pbkdf2.verify_pass(password, user.password_hash) ->
+        {:ok, user}
+
+      true ->
+        {:error, :unauthorized}
+    end
+  end
+
+  def authenticate_user(%User{} = user, remember_token: remember_token) do
+    cond do
+      Pbkdf2.verify_pass(remember_token, user.remember_hash) ->
         {:ok, user}
 
       true ->
