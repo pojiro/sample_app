@@ -11,7 +11,7 @@
               Account <b class="caret"></b>
             </a>
             <ul class="dropdown-menu">
-              <li><%= link "Profile", to: Routes.user_path(@conn, :show, SampleAppWeb.Auth.current_user(@conn)) %></li>
+              <li><%= link "Profile", to: Routes.user_path(@conn, :show, @conn.assigns.current_user) %></li>
               <li><%= link "Settings", to: '#' %></li>
               <li class="divider"></li>
               <li>

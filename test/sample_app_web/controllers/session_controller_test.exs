@@ -3,45 +3,102 @@ defmodule SampleAppWeb.SessionControllerTest do
 
   alias SampleAppWeb.Auth
 
-  test "login with invalid information", %{conn: conn} do
+  defp login(conn, user, remember_me) do
+    conn = get(conn, Routes.session_path(conn, :new))
+
+    post(conn, Routes.session_path(conn, :create), %{
+      session: %{
+        "email" => user.email,
+        "password" => user.password,
+        "remember_me" => remember_me
+      }
+    })
+  end
+
+  test "session_path :new", %{conn: conn} do
     conn = get(conn, Routes.session_path(conn, :new))
     assert html_response(conn, 200) =~ "Log in"
-    conn = post(conn, Routes.session_path(conn, :create), %{session: %{email: "", password: ""}})
+  end
+
+  test "login with invalid information", %{conn: conn} do
+    conn =
+      post(conn, Routes.session_path(conn, :create), %{
+        session: %{
+          "email" => "",
+          "password" => "",
+          "remember_me" => "false"
+        }
+      })
+
     html = html_response(conn, 200)
     assert html =~ "Log in"
     assert html =~ "Invalid username/password combination"
   end
 
-  test "login with valid information followed by logout", %{conn: conn} do
+  test "login with valid information, not remember me", %{conn: conn} do
     user = user_fixture()
+    conn = login(conn, user, "false")
 
-    conn = get(conn, Routes.session_path(conn, :new))
-    assert html_response(conn, 200) =~ "Log in"
-
-    conn =
-      post(conn, Routes.session_path(conn, :create), %{
-        session: %{email: user.email, password: user.password}
-      })
-
-    assert Auth.logged_in?(conn)
     assert redirected_to(conn, 302) == Routes.static_page_path(conn, :home)
-    assert get_flash(conn, :info) == "Welcome back!"
     conn = get(conn, Routes.static_page_path(conn, :home))
+    assert Auth.logged_in?(conn)
+
+    assert get_session(conn, :user_id) == user.id
+    refute conn.cookies["remember_token"]
+
+    assert get_flash(conn, :info) == "Welcome back!"
     html = html_response(conn, 200)
     refute html =~ "Log in"
+    assert html =~ "Account"
     assert html =~ "Profile"
     assert html =~ "Settings"
     assert html =~ "Log out"
+  end
+
+  test "login with valid information, not remember me, followed by logout", %{conn: conn} do
+    user = user_fixture()
+    conn = login(conn, user, "false")
 
     conn = delete(conn, Routes.session_path(conn, :delete))
-    refute Auth.logged_in?(conn)
-
     assert redirected_to(conn, 302) == Routes.static_page_path(conn, :home)
     conn = get(conn, Routes.static_page_path(conn, :home))
+    refute Auth.logged_in?(conn)
+
+    refute get_session(conn, :user_id) == user.id
+    refute conn.cookies["remember_token"]
+
     html = html_response(conn, 200)
     assert html =~ "Log in"
+    refute html =~ "Account"
     refute html =~ "Profile"
     refute html =~ "Settings"
     refute html =~ "Log out"
+  end
+
+  test "login with valid information, remember me", %{conn: conn} do
+    user = user_fixture()
+    conn = login(conn, user, "true")
+
+    assert redirected_to(conn, 302) == Routes.static_page_path(conn, :home)
+    conn = get(conn, Routes.static_page_path(conn, :home))
+    assert Auth.logged_in?(conn)
+
+    assert get_session(conn, :user_id) == user.id
+    assert conn.cookies["remember_token"]
+    assert conn.cookies["user_id"]
+  end
+
+  test "login with valid information, remember me, followed by logout", %{conn: conn} do
+    user = user_fixture()
+    conn = login(conn, user, "true")
+
+    conn = delete(conn, Routes.session_path(conn, :delete))
+    assert redirected_to(conn, 302) == Routes.static_page_path(conn, :home)
+    conn = get(conn, Routes.static_page_path(conn, :home))
+    refute Auth.logged_in?(conn)
+
+    refute get_session(conn, :user_id) == user.id
+    refute conn.cookies["remember_token"]
+    refute conn.cookies["user_id"]
   end
 end
