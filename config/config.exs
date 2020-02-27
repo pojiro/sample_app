@@ -26,6 +26,9 @@ config :logger, :console,
 # Use Jason for JSON parsing in Phoenix
 config :phoenix, :json_library, Jason
 
+config :scrivener_html,
+  routes_helper: SampleAppWeb.Router.Helpers
+
 config :git_hooks,
   verbose: true,
   hooks: [

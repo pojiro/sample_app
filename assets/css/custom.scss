@@ -3,6 +3,7 @@
 /* mixins, variables, etc. */
 
 $gray-medium-light: #eaeaea;
+$gray-lighter: #eee;
 $gray-light: #777;
 $gray: #555;
 $gray-darker: #222;
@@ -201,4 +202,16 @@ input {
   color: #a94442;
   display: block;
   margin: -1rem 0 2rem;
+}
+
+/* Users index */
+
+.users {
+  list-style: none;
+  margin: 0;
+  li {
+    overflow: auto;
+    padding: 10px 0;
+    border-bottom: 1px solid $gray-lighter;
+  }
 }

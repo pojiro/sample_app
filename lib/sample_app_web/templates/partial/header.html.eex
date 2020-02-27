@@ -6,13 +6,14 @@
         <li><%= link "Home",   to: Routes.static_page_path(@conn, :home) %></li>
         <li><%= link "Help",   to: Routes.static_page_path(@conn, :help) %></li>
         <%= if SampleAppWeb.Auth.logged_in?(@conn) do %>
+          <li><%= link "Users", to: Routes.user_path(@conn, :index) %></li>
           <li class="dropdown">
             <a href="#" class="dropdown-toggle" data-toggle="dropdown">
               Account <b class="caret"></b>
             </a>
             <ul class="dropdown-menu">
-              <li><%= link "Profile", to: Routes.user_path(@conn, :show, @conn.assigns.current_user) %></li>
-              <li><%= link "Settings", to: '#' %></li>
+              <li><%= link "Profile", to: Routes.user_path(@conn, :show, @current_user) %></li>
+              <li><%= link "Settings", to: Routes.user_path(@conn, :edit, @current_user) %></li>
               <li class="divider"></li>
               <li>
                 <%= link "Log out", to: Routes.session_path(@conn, :delete), method: :delete %>

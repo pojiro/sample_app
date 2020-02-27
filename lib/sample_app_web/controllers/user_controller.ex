@@ -1,13 +1,16 @@
 defmodule SampleAppWeb.UserController do
   use SampleAppWeb, :controller
+  plug :logged_in_user when action in [:index, :show, :edit, :update, :delete]
+  plug :correct_user when action in [:edit, :update]
+  plug :admin_user when action in [:delete]
 
   alias SampleApp.Accounts
   alias SampleApp.Accounts.User
   alias SampleAppWeb.Auth
 
-  def index(conn, _params) do
-    users = Accounts.list_users()
-    render(conn, "index.html", users: users)
+  def index(conn, params) do
+    users = Accounts.list_by_page(params)
+    render(conn, "index.html", users: users, page_title: "All users")
   end
 
   def new(conn, _params) do
@@ -24,8 +27,7 @@ defmodule SampleAppWeb.UserController do
         |> redirect(to: Routes.user_path(conn, :show, user))
 
       {:error, %Ecto.Changeset{} = changeset} ->
-        conn
-        |> render("new.html", changeset: changeset)
+        render(conn, "new.html", changeset: changeset)
     end
   end
 
@@ -37,7 +39,7 @@ defmodule SampleAppWeb.UserController do
   def edit(conn, %{"id" => id}) do
     user = Accounts.get_user!(id)
     changeset = Accounts.change_user(user)
-    render(conn, "edit.html", user: user, changeset: changeset)
+    render(conn, "edit.html", user: user, changeset: changeset, page_title: "Edit user")
   end
 
   def update(conn, %{"id" => id, "user" => user_params}) do
@@ -54,12 +56,12 @@ defmodule SampleAppWeb.UserController do
     end
   end
 
-  def delete(conn, %{"id" => id}) do
+  def delete(%{assigns: %{current_user: login_user}} = conn, %{"id" => id}) do
     user = Accounts.get_user!(id)
     {:ok, _user} = Accounts.delete_user(user)
 
     conn
-    |> put_flash(:info, "User deleted successfully.")
+    |> put_flash(:info, "User deleted")
     |> redirect(to: Routes.user_path(conn, :index))
   end
 end

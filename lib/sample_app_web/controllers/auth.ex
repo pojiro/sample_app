@@ -1,5 +1,9 @@
 defmodule SampleAppWeb.Auth do
   import Plug.Conn
+  import Phoenix.Controller
+
+  alias SampleAppWeb.Router.Helpers, as: Routes
+  alias SampleAppWeb.SessionHelper
 
   @max_age {:max_age, 20 * 365 * 24 * 60 * 60}
   @remember_token_salt "remember me"
@@ -11,14 +15,14 @@ defmodule SampleAppWeb.Auth do
   def call(conn, _opts) do
     cond do
       user_id = get_session(conn, :user_id) ->
-        user = SampleApp.Accounts.get_user(user_id)
+        user = SampleApp.Accounts.get_user!(user_id)
         assign(conn, :current_user, user)
 
       signed_user_id = conn.cookies[@user_id_key] ->
         {:ok, user_id} =
           Phoenix.Token.verify(conn, @remember_token_salt, signed_user_id, [@max_age])
 
-        user = SampleApp.Accounts.get_user(user_id)
+        user = SampleApp.Accounts.get_user!(user_id)
 
         case SampleApp.Accounts.authenticate_user(user,
                remember_token: conn.cookies[@remember_token_key]
@@ -70,6 +74,40 @@ defmodule SampleAppWeb.Auth do
   def forget_user(conn, user), do: remember_user(conn, user, "false")
 
   def logged_in?(conn), do: conn.assigns.current_user
+
+  def logged_in_user(conn, _opts) do
+    if logged_in?(conn) do
+      conn
+    else
+      conn
+      |> SessionHelper.store_location()
+      |> put_flash(:error, "Please log in.")
+      |> redirect(to: Routes.session_path(conn, :new))
+      |> halt()
+    end
+  end
+
+  def correct_user(%{assigns: %{current_user: login_user}} = conn, _opts) do
+    user = SampleApp.Accounts.get_user!(conn.params["id"])
+
+    if login_user.id == user.id do
+      conn
+    else
+      conn
+      |> redirect(to: Routes.static_page_path(conn, :home))
+      |> halt()
+    end
+  end
+
+  def admin_user(%{assigns: %{current_user: login_user}} = conn, _opts) do
+    if login_user.admin do
+      conn
+    else
+      conn
+      |> redirect(to: Routes.static_page_path(conn, :home))
+      |> halt()
+    end
+  end
 
   defp generate_onetime_token(length \\ 64) do
     # see https://github.com/phoenixframework/phoenix/blob/master/lib/mix/tasks/phx.gen.secret.ex

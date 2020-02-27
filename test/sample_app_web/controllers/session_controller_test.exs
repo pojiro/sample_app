@@ -3,18 +3,6 @@ defmodule SampleAppWeb.SessionControllerTest do
 
   alias SampleAppWeb.Auth
 
-  defp login(conn, user, remember_me) do
-    conn = get(conn, Routes.session_path(conn, :new))
-
-    post(conn, Routes.session_path(conn, :create), %{
-      session: %{
-        "email" => user.email,
-        "password" => user.password,
-        "remember_me" => remember_me
-      }
-    })
-  end
-
   test "session_path :new", %{conn: conn} do
     conn = get(conn, Routes.session_path(conn, :new))
     assert html_response(conn, 200) =~ "Log in"

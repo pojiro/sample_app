@@ -1,28 +1,20 @@
-<h1>Listing Users</h1>
+<h1>All Users</h1>
 
-<table>
-  <thead>
-    <tr>
-      <th>Name</th>
-      <th>Email</th>
+<%= pagination_links @conn, @users %>
 
-      <th></th>
-    </tr>
-  </thead>
-  <tbody>
-<%= for user <- @users do %>
-    <tr>
-      <td><%= user.name %></td>
-      <td><%= user.email %></td>
+<ul class="users">
+  <%= for user <- @users do %>
+    <li>
+      <%= gravatar_for user, %{size: 50} %>
+      <%= link user.name, to: Routes.user_path(@conn, :show, user) %>
+      <%= if @current_user.admin && @current_user.id != user.id do %>
+        | <%= link "delete",
+            to: Routes.user_path(@conn, :delete, user),
+            method: "delete",
+            data: [confirm: "Are you sure?"] %>
+      <% end %>
+    </li>
+  <% end %>
+</ul>
 
-      <td>
-        <span><%= link "Show", to: Routes.user_path(@conn, :show, user) %></span>
-        <span><%= link "Edit", to: Routes.user_path(@conn, :edit, user) %></span>
-        <span><%= link "Delete", to: Routes.user_path(@conn, :delete, user), method: :delete, data: [confirm: "Are you sure?"] %></span>
-      </td>
-    </tr>
-<% end %>
-  </tbody>
-</table>
-
-<span><%= link "New User", to: Routes.user_path(@conn, :new) %></span>
+<%= pagination_links @conn, @users %>

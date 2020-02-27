@@ -9,6 +9,7 @@ defmodule SampleApp.Accounts.User do
     field :password_hash, :string
     field :remember_token, :string, virtual: true
     field :remember_hash, :string
+    field :admin, :boolean
 
     timestamps()
   end
@@ -32,8 +33,23 @@ defmodule SampleApp.Accounts.User do
     |> cast(attrs, [:password])
     |> validate_required([:password])
     |> validate_length(:password, min: 6, max: 100)
-    |> validate_confirmation(:password, required: true, message: "does not match password")
+    |> validate_confirmation(:password, message: "does not match password")
     |> put_pass_hash()
+  end
+
+  def administrator_changeset(user, params) do
+    user
+    |> registration_changeset(params)
+    |> cast(params, [:admin])
+    |> validate_required([:admin])
+  end
+
+  def update_changeset(user, %{"password" => "", "password_confirmation" => ""} = attrs) do
+    changeset(user, attrs)
+  end
+
+  def update_changeset(user, attrs) do
+    registration_changeset(user, attrs)
   end
 
   defp put_pass_hash(changeset) do

@@ -1,5 +1,6 @@
 defmodule SampleAppWeb.UserView do
   use SampleAppWeb, :view
+  import Scrivener.HTML
 
   # 引数で与えられたユーザーのGravatar画像を返す
   def gravatar_for(user, options \\ %{size: 80}) do
