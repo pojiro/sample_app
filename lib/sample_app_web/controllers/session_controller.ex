@@ -1,6 +1,8 @@
 defmodule SampleAppWeb.SessionController do
   use SampleAppWeb, :controller
 
+  alias SampleAppWeb.SessionHelper
+
   def new(conn, _) do
     render(conn, "new.html", page_title: "Log in")
   end
@@ -16,7 +18,7 @@ defmodule SampleAppWeb.SessionController do
         |> SampleAppWeb.Auth.login(user)
         |> SampleAppWeb.Auth.remember_user(user, remember_me)
         |> put_flash(:info, "Welcome back!")
-        |> redirect(to: Routes.static_page_path(conn, :home))
+        |> SessionHelper.redirect_back_or(Routes.static_page_path(conn, :home))
 
       {:error, _reason} ->
         conn

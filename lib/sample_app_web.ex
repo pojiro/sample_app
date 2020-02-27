@@ -23,6 +23,7 @@ defmodule SampleAppWeb do
 
       import Plug.Conn
       import SampleAppWeb.Gettext
+      import SampleAppWeb.Auth, only: [logged_in_user: 2, correct_user: 2, admin_user: 2]
       alias SampleAppWeb.Router.Helpers, as: Routes
     end
   end
@@ -50,6 +51,7 @@ defmodule SampleAppWeb do
       use Phoenix.Router
       import Plug.Conn
       import Phoenix.Controller
+      import SampleAppWeb.Auth, only: [logged_in_user: 2, correct_user: 2, admin_user: 2]
     end
   end
 

@@ -46,7 +46,11 @@ defmodule SampleApp.MixProject do
       {:git_hooks, only: [:dev, :test], runtime: false},
       {:mix_test_watch, "~> 1.0", only: :dev, runtime: false},
       {:ex_unit_notifier, "~> 0.1", only: :test},
-      {:pbkdf2_elixir, "~> 1.0"}
+      {:pbkdf2_elixir, "~> 1.0"},
+      {:faker, "~> 0.13", only: [:dev, :test]},
+      {:scrivener, "~> 2.0"},
+      {:scrivener_ecto, "~> 2.0"},
+      {:scrivener_html, "~> 1.8"}
     ]
   end
 

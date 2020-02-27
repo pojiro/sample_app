@@ -21,6 +21,11 @@ defmodule SampleApp.Accounts do
     Repo.all(User)
   end
 
+  @doc false
+  def list_by_page(params) do
+    Repo.paginate(User, params)
+  end
+
   @doc """
   Gets a single user.
 
@@ -36,9 +41,6 @@ defmodule SampleApp.Accounts do
 
   """
   def get_user!(id), do: Repo.get!(User, id)
-
-  @doc false
-  def get_user(id), do: Repo.get(User, id)
 
   @doc false
   def get_user_by(params), do: Repo.get_by(User, params)
@@ -69,6 +71,12 @@ defmodule SampleApp.Accounts do
     |> Repo.insert()
   end
 
+  def register_admin_user(attrs \\ %{}) do
+    %User{}
+    |> User.administrator_changeset(attrs)
+    |> Repo.insert()
+  end
+
   @doc """
   Updates a user.
 
@@ -83,7 +91,7 @@ defmodule SampleApp.Accounts do
   """
   def update_user(%User{} = user, attrs) do
     user
-    |> User.changeset(attrs)
+    |> User.update_changeset(attrs)
     |> Repo.update()
   end
 
