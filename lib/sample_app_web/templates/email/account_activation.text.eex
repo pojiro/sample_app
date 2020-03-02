@@ -1,0 +1,6 @@
+Activate account
+<%= Routes.account_activation_url(
+      SampleAppWeb.Endpoint,
+      :edit,
+      @user.activation_token,
+      email: @user.email) %>

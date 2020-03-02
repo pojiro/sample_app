@@ -19,3 +19,5 @@ config :logger, level: :warn
 
 # ease up the number of hashing rounds to speed up test
 config :pbkdf2_elixir, :rounds, 1
+
+config :sample_app, SampleAppWeb.Mailer, adapter: Bamboo.TestAdapter

@@ -3,6 +3,10 @@ defmodule SampleAppWeb.SessionControllerTest do
 
   alias SampleAppWeb.Auth
 
+  setup do
+    {:ok, user: activated_user_fixture(), deactivated_user: user_fixture(:archer)}
+  end
+
   test "session_path :new", %{conn: conn} do
     conn = get(conn, Routes.session_path(conn, :new))
     assert html_response(conn, 200) =~ "Log in"
@@ -23,8 +27,7 @@ defmodule SampleAppWeb.SessionControllerTest do
     assert html =~ "Invalid username/password combination"
   end
 
-  test "login with valid information, not remember me", %{conn: conn} do
-    user = user_fixture()
+  test "login with valid information, not remember me", %{conn: conn, user: user} do
     conn = login(conn, user, "false")
 
     assert redirected_to(conn, 302) == Routes.static_page_path(conn, :home)
@@ -43,8 +46,10 @@ defmodule SampleAppWeb.SessionControllerTest do
     assert html =~ "Log out"
   end
 
-  test "login with valid information, not remember me, followed by logout", %{conn: conn} do
-    user = user_fixture()
+  test "login with valid information, not remember me, followed by logout", %{
+    conn: conn,
+    user: user
+  } do
     conn = login(conn, user, "false")
 
     conn = delete(conn, Routes.session_path(conn, :delete))
@@ -63,8 +68,7 @@ defmodule SampleAppWeb.SessionControllerTest do
     refute html =~ "Log out"
   end
 
-  test "login with valid information, remember me", %{conn: conn} do
-    user = user_fixture()
+  test "login with valid information, remember me", %{conn: conn, user: user} do
     conn = login(conn, user, "true")
 
     assert redirected_to(conn, 302) == Routes.static_page_path(conn, :home)
@@ -76,8 +80,7 @@ defmodule SampleAppWeb.SessionControllerTest do
     assert conn.cookies["user_id"]
   end
 
-  test "login with valid information, remember me, followed by logout", %{conn: conn} do
-    user = user_fixture()
+  test "login with valid information, remember me, followed by logout", %{conn: conn, user: user} do
     conn = login(conn, user, "true")
 
     conn = delete(conn, Routes.session_path(conn, :delete))
@@ -88,5 +91,11 @@ defmodule SampleAppWeb.SessionControllerTest do
     refute get_session(conn, :user_id) == user.id
     refute conn.cookies["remember_token"]
     refute conn.cookies["user_id"]
+  end
+
+  test "login with deactivated user", %{conn: conn, deactivated_user: user} do
+    conn = login(conn, user)
+    assert get_flash(conn, :warning) =~ "Account not activated."
+    assert redirected_to(conn, 302) == Routes.static_page_path(conn, :home)
   end
 end

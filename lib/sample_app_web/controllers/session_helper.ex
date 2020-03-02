@@ -8,9 +8,7 @@ defmodule SampleAppWeb.SessionHelper do
 
   def redirect_back_or(conn, default) do
     path = get_session(conn, "forwarding_path") || default
-
-    conn
-    |> delete_resp_cookie("forwarding_path")
-    |> redirect(to: path)
+    delete_session(conn, "forwarding_path")
+    redirect(conn, to: path)
   end
 end

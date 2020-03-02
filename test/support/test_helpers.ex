@@ -11,21 +11,27 @@ defmodule SampleApp.TestHelpers do
         email: "michael@example.com",
         password: "password",
         password_confirmation: "password",
-        admin: false
+        admin: false,
+        activated: false,
+        activated_at: nil
       },
       archer: %{
         name: "Sterling Archer",
         email: "duchess@example.com",
         password: "password",
         password_confirmation: "password",
-        admin: false
+        admin: false,
+        activated: false,
+        activated_at: nil
       },
       admin: %{
         name: "Administrator",
         email: "admin@example.com",
         password: "password",
         password_confirmation: "password",
-        admin: true
+        admin: true,
+        activated: false,
+        activated_at: nil
       }
     }
 
@@ -39,11 +45,21 @@ defmodule SampleApp.TestHelpers do
 
   def user_attrs(), do: user_attrs(:michael)
 
-  def user_fixture(attrs \\ %{}) do
+  def user_fixture(name \\ :michael)
+
+  def user_fixture(name) when is_atom(name) do
+    {:ok, user} =
+      user_attrs(name)
+      |> Accounts.register_user_with_activation_token()
+
+    user
+  end
+
+  def user_fixture(attrs) when is_map(attrs) do
     {:ok, user} =
       attrs
       |> Enum.into(user_attrs(:michael))
-      |> Accounts.register_user()
+      |> Accounts.register_user_with_activation_token()
 
     user
   end
@@ -53,6 +69,22 @@ defmodule SampleApp.TestHelpers do
       attrs
       |> Enum.into(user_attrs(:admin))
       |> Accounts.register_admin_user()
+
+    user
+  end
+
+  def activated_user_fixture(attrs \\ %{}) do
+    {:ok, user} =
+      user_fixture(attrs)
+      |> Accounts.activate_user()
+
+    user
+  end
+
+  def activated_admin_user_fixture(attrs \\ %{}) do
+    {:ok, user} =
+      admin_user_fixture(attrs)
+      |> Accounts.activate_user()
 
     user
   end

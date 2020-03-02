@@ -7,6 +7,10 @@ defmodule SampleApp.Accounts do
   alias SampleApp.Repo
 
   alias SampleApp.Accounts.User
+  alias SampleAppWeb.{Email, Mailer}
+
+  @max_age {:max_age, 24 * 60 * 60}
+  @activation_token_salt "activation_token"
 
   @doc """
   Returns the list of users.
@@ -63,14 +67,25 @@ defmodule SampleApp.Accounts do
     |> Repo.insert()
   end
 
-  @doc """
-  """
+  @doc false
   def register_user(attrs \\ %{}) do
     %User{}
     |> User.registration_changeset(attrs)
     |> Repo.insert()
   end
 
+  @doc false
+  def register_user_with_activation_token(attrs \\ %{}) do
+    token = SampleApp.Helper.generate_onetime_token()
+    signed_token = Phoenix.Token.sign(SampleAppWeb.Endpoint, @activation_token_salt, token)
+    attrs = Map.put(attrs, :activation_token, signed_token)
+
+    %User{}
+    |> User.registration_with_activation_token_changeset(attrs)
+    |> Repo.insert()
+  end
+
+  @doc false
   def register_admin_user(attrs \\ %{}) do
     %User{}
     |> User.administrator_changeset(attrs)
@@ -132,9 +147,27 @@ defmodule SampleApp.Accounts do
   end
 
   @doc false
+  def activate_user(%User{} = user) do
+    user
+    |> User.activation_changeset(%{activated: true, activated_at: NaiveDateTime.utc_now()})
+    |> Repo.update()
+  end
+
+  @doc false
+  def deactivate_user(%User{} = user) do
+    user
+    |> User.activation_changeset(%{activated: false})
+    |> Repo.update()
+  end
+
+  @doc false
   def authenticate_user(nil, _) do
     Pbkdf2.no_user_verify()
     {:error, :not_found}
+  end
+
+  def authenticate_user(%User{activated: false} = _user, password: _) do
+    {:error, :not_activated}
   end
 
   def authenticate_user(%User{} = user, password: password) do
@@ -155,5 +188,24 @@ defmodule SampleApp.Accounts do
       true ->
         {:error, :unauthorized}
     end
+  end
+
+  def authenticate_user(%User{} = user, activation_token: activation_token) do
+    {:ok, _} =
+      Phoenix.Token.verify(SampleAppWeb.Endpoint, @activation_token_salt, activation_token, [
+        @max_age
+      ])
+
+    cond do
+      Pbkdf2.verify_pass(activation_token, user.activation_hash) ->
+        {:ok, user}
+
+      true ->
+        {:error, :unauthorized}
+    end
+  end
+
+  def send_account_activation_email_to_user(user) do
+    Email.account_activation(user) |> Mailer.deliver_now()
   end
 end

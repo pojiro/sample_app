@@ -53,7 +53,7 @@ defmodule SampleAppWeb.Auth do
   end
 
   def remember_user(conn, user, "true") do
-    token = generate_onetime_token()
+    token = SampleApp.Helper.generate_onetime_token()
     signed_user_id = Phoenix.Token.sign(conn, @remember_token_salt, user.id)
 
     {:ok, user} = SampleApp.Accounts.remember_user(user, %{remember_token: token})
@@ -107,11 +107,5 @@ defmodule SampleAppWeb.Auth do
       |> redirect(to: Routes.static_page_path(conn, :home))
       |> halt()
     end
-  end
-
-  defp generate_onetime_token(length \\ 64) do
-    # see https://github.com/phoenixframework/phoenix/blob/master/lib/mix/tasks/phx.gen.secret.ex
-    # literal copy of mix phx.gen.secret implementation.
-    :crypto.strong_rand_bytes(length) |> Base.encode64() |> binary_part(0, length)
   end
 end

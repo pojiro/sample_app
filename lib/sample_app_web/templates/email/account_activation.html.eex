@@ -1,0 +1,9 @@
+<p>
+  <%= link "Activate account", to: Routes.account_activation_url(
+                                     SampleAppWeb.Endpoint,
+                                     :edit,
+                                     @user.activation_token,
+                                     email: @user.email),
+                               target: "_blank",
+                               rel: "noopener" %>
+</p>

@@ -27,14 +27,21 @@ defmodule SampleAppWeb.Router do
 
     get "/signup", UserController, :new
     post "/signup", UserController, :create
+    resources "/users", UserController, except: [:new, :create]
+
     get "/login", SessionController, :new
     post "/login", SessionController, :create
     delete "/login", SessionController, :delete
-    resources "/users", UserController, except: [:new, :create]
+
+    resources "/account_activation", AccountActivationController, only: [:edit]
   end
 
   # Other scopes may use custom stacks.
   # scope "/api", SampleAppWeb do
   #   pipe_through :api
   # end
+
+  if Mix.env() == :dev do
+    forward "/emails", Bamboo.SentEmailViewerPlug
+  end
 end

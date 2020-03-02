@@ -54,14 +54,9 @@ defmodule SampleAppWeb.UserControllerTest do
     test "redirects to show when data is valid", %{conn: conn} do
       conn = post(conn, Routes.user_path(conn, :create), user: @create_attrs)
 
-      assert %{id: id} = redirected_params(conn)
-      assert redirected_to(conn) == Routes.user_path(conn, :show, id)
-
-      conn = get(conn, Routes.user_path(conn, :show, id))
-      html = html_response(conn, 200)
-      assert html =~ "Welcome to the Sample App!"
-      assert html =~ "<p class=\"alert alert-success"
-      assert Auth.logged_in?(conn)
+      assert redirected_to(conn) == Routes.static_page_path(conn, :home)
+      assert get_flash(conn, :info) == "Please check your email to activate your account."
+      refute Auth.logged_in?(conn)
     end
 
     test "renders errors when data is invalid", %{conn: conn} do
@@ -243,9 +238,9 @@ defmodule SampleAppWeb.UserControllerTest do
   defp create_user(_) do
     {
       :ok,
-      user: user_fixture(user_attrs(:michael)),
-      other_user: user_fixture(user_attrs(:archer)),
-      admin_user: admin_user_fixture()
+      user: activated_user_fixture(user_attrs(:michael)),
+      other_user: activated_user_fixture(user_attrs(:archer)),
+      admin_user: activated_admin_user_fixture()
     }
   end
 end

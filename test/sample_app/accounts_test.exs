@@ -71,5 +71,12 @@ defmodule SampleApp.AccountsTest do
 
       assert [%User{id: ^id}] = Accounts.list_users()
     end
+
+    test "authenticate user by activation token" do
+      assert {:ok, user} = Accounts.register_user_with_activation_token(user_attrs())
+
+      assert {:ok, user} =
+               Accounts.authenticate_user(user, activation_token: user.activation_token)
+    end
   end
 end

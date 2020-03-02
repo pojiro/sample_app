@@ -4,9 +4,10 @@ defmodule SampleAppWeb.UserController do
   plug :correct_user when action in [:edit, :update]
   plug :admin_user when action in [:delete]
 
+  import SampleApp.Helper, only: [convert_to_atom_key_map: 2]
+
   alias SampleApp.Accounts
   alias SampleApp.Accounts.User
-  alias SampleAppWeb.Auth
 
   def index(conn, params) do
     users = Accounts.list_by_page(params)
@@ -19,12 +20,15 @@ defmodule SampleAppWeb.UserController do
   end
 
   def create(conn, %{"user" => user_params}) do
-    case Accounts.register_user(user_params) do
+    user_params = convert_to_atom_key_map(User, user_params)
+
+    case Accounts.register_user_with_activation_token(user_params) do
       {:ok, user} ->
+        Accounts.send_account_activation_email_to_user(user)
+
         conn
-        |> Auth.login(user)
-        |> put_flash(:success, "Welcome to the Sample App!")
-        |> redirect(to: Routes.user_path(conn, :show, user))
+        |> put_flash(:info, "Please check your email to activate your account.")
+        |> redirect(to: Routes.static_page_path(conn, :home))
 
       {:error, %Ecto.Changeset{} = changeset} ->
         render(conn, "new.html", changeset: changeset)
@@ -44,6 +48,7 @@ defmodule SampleAppWeb.UserController do
 
   def update(conn, %{"id" => id, "user" => user_params}) do
     user = Accounts.get_user!(id)
+    user_params = convert_to_atom_key_map(User, user_params)
 
     case Accounts.update_user(user, user_params) do
       {:ok, user} ->
@@ -56,7 +61,7 @@ defmodule SampleAppWeb.UserController do
     end
   end
 
-  def delete(%{assigns: %{current_user: login_user}} = conn, %{"id" => id}) do
+  def delete(conn, %{"id" => id}) do
     user = Accounts.get_user!(id)
     {:ok, _user} = Accounts.delete_user(user)
 
