@@ -20,6 +20,15 @@ defmodule SampleAppWeb.SessionController do
         |> put_flash(:info, "Welcome back!")
         |> SessionHelper.redirect_back_or(Routes.static_page_path(conn, :home))
 
+      {:error, :not_activated} ->
+        conn
+        |> put_flash(
+          :warning,
+          "Account not activated.\n " <>
+            "Check your email for the activation link."
+        )
+        |> redirect(to: Routes.static_page_path(conn, :home))
+
       {:error, _reason} ->
         conn
         |> put_flash(:error, "Invalid username/password combination")

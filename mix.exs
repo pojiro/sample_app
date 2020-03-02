@@ -50,7 +50,8 @@ defmodule SampleApp.MixProject do
       {:faker, "~> 0.13", only: [:dev, :test]},
       {:scrivener, "~> 2.0"},
       {:scrivener_ecto, "~> 2.0"},
-      {:scrivener_html, "~> 1.8"}
+      {:scrivener_html, "~> 1.8"},
+      {:bamboo, "~> 1.4"}
     ]
   end
 

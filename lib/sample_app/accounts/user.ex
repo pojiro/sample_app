@@ -6,10 +6,15 @@ defmodule SampleApp.Accounts.User do
     field :email, :string
     field :name, :string
     field :password, :string, virtual: true
+    field :password_confirmation, :string, virtual: true
     field :password_hash, :string
     field :remember_token, :string, virtual: true
     field :remember_hash, :string
     field :admin, :boolean
+    field :activation_token, :string, virtual: true
+    field :activation_hash, :string
+    field :activated, :boolean
+    field :activated_at, :naive_datetime
 
     timestamps()
   end
@@ -37,6 +42,14 @@ defmodule SampleApp.Accounts.User do
     |> put_pass_hash()
   end
 
+  def registration_with_activation_token_changeset(user, attrs) do
+    user
+    |> registration_changeset(attrs)
+    |> cast(attrs, [:activation_token])
+    |> validate_required([:activation_token])
+    |> put_activation_token_hash
+  end
+
   def administrator_changeset(user, params) do
     user
     |> registration_changeset(params)
@@ -44,12 +57,18 @@ defmodule SampleApp.Accounts.User do
     |> validate_required([:admin])
   end
 
-  def update_changeset(user, %{"password" => "", "password_confirmation" => ""} = attrs) do
+  def update_changeset(user, %{password: "", password_confirmation: ""} = attrs) do
     changeset(user, attrs)
   end
 
   def update_changeset(user, attrs) do
     registration_changeset(user, attrs)
+  end
+
+  def activation_changeset(user, params) do
+    user
+    |> cast(params, [:activated, :activated_at])
+    |> validate_required([:activated])
   end
 
   defp put_pass_hash(changeset) do
@@ -65,13 +84,23 @@ defmodule SampleApp.Accounts.User do
   def remembrance_changeset(user, attrs) do
     user
     |> cast(attrs, [:remember_token])
-    |> put_token_hash()
+    |> put_remember_token_hash()
   end
 
-  defp put_token_hash(changeset) do
+  defp put_remember_token_hash(changeset) do
     case changeset do
       %Ecto.Changeset{valid?: true, changes: %{remember_token: token}} ->
         put_change(changeset, :remember_hash, Pbkdf2.hash_pwd_salt(token))
+
+      _ ->
+        changeset
+    end
+  end
+
+  defp put_activation_token_hash(changeset) do
+    case changeset do
+      %Ecto.Changeset{valid?: true, changes: %{activation_token: token}} ->
+        put_change(changeset, :activation_hash, Pbkdf2.hash_pwd_salt(token))
 
       _ ->
         changeset
