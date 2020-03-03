@@ -78,5 +78,25 @@ defmodule SampleApp.AccountsTest do
       assert {:ok, user} =
                Accounts.authenticate_user(user, activation_token: user.activation_token)
     end
+
+    test "authenticate user by password reset token" do
+      assert {:ok, user} = Accounts.password_reset(activated_user_fixture())
+
+      assert {:ok, user} =
+               Accounts.authenticate_user(user,
+                 password_reset_token: user.password_reset_token,
+                 max_age: 10
+               )
+    end
+
+    test "authenticate user by expired password reset token" do
+      assert {:ok, user} = Accounts.password_reset(activated_user_fixture())
+
+      assert {:error, :expired} =
+               Accounts.authenticate_user(user,
+                 password_reset_token: user.password_reset_token,
+                 max_age: -10
+               )
+    end
   end
 end

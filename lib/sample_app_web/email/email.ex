@@ -11,6 +11,14 @@ defmodule SampleAppWeb.Email do
     |> render(:account_activation)
   end
 
+  def password_reset(%User{} = user) do
+    base()
+    |> subject("Password Reset")
+    |> to(user.email)
+    |> assign(:user, user)
+    |> render(:password_reset)
+  end
+
   defp base do
     new_email()
     |> from("SampleApp<noreply@tombo-works.com>")

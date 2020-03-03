@@ -9,8 +9,10 @@ defmodule SampleApp.Accounts do
   alias SampleApp.Accounts.User
   alias SampleAppWeb.{Email, Mailer}
 
-  @max_age {:max_age, 24 * 60 * 60}
+  @activation_token_max_age {:max_age, 24 * 60 * 60}
   @activation_token_salt "activation_token"
+
+  @password_reset_token_salt "reset_password_token"
 
   @doc """
   Returns the list of users.
@@ -110,6 +112,12 @@ defmodule SampleApp.Accounts do
     |> Repo.update()
   end
 
+  def update_password(%User{} = user, attrs) do
+    user
+    |> User.password_changeset(attrs)
+    |> Repo.update()
+  end
+
   @doc false
   def remember_user(%User{} = user, %{remember_token: _token} = attrs) do
     user
@@ -147,6 +155,11 @@ defmodule SampleApp.Accounts do
   end
 
   @doc false
+  def change_password(%User{} = user) do
+    User.password_changeset(user, %{})
+  end
+
+  @doc false
   def activate_user(%User{} = user) do
     user
     |> User.activation_changeset(%{activated: true, activated_at: NaiveDateTime.utc_now()})
@@ -157,6 +170,16 @@ defmodule SampleApp.Accounts do
   def deactivate_user(%User{} = user) do
     user
     |> User.activation_changeset(%{activated: false})
+    |> Repo.update()
+  end
+
+  @doc false
+  def password_reset(%User{} = user) do
+    token = SampleApp.Helper.generate_onetime_token()
+    signed_token = Phoenix.Token.sign(SampleAppWeb.Endpoint, @password_reset_token_salt, token)
+
+    user
+    |> User.password_reset_changeset(%{password_reset_token: signed_token})
     |> Repo.update()
   end
 
@@ -193,7 +216,7 @@ defmodule SampleApp.Accounts do
   def authenticate_user(%User{} = user, activation_token: activation_token) do
     {:ok, _} =
       Phoenix.Token.verify(SampleAppWeb.Endpoint, @activation_token_salt, activation_token, [
-        @max_age
+        @activation_token_max_age
       ])
 
     cond do
@@ -205,7 +228,35 @@ defmodule SampleApp.Accounts do
     end
   end
 
-  def send_account_activation_email_to_user(user) do
+  def authenticate_user(%User{} = user, password_reset_token: token, max_age: max_age) do
+    case Phoenix.Token.verify(SampleAppWeb.Endpoint, @password_reset_token_salt, token,
+           max_age: max_age
+         ) do
+      {:ok, _} ->
+        cond do
+          Pbkdf2.verify_pass(token, user.password_reset_hash) -> {:ok, user}
+          true -> {:error, :unauthorized}
+        end
+
+      {:error, reason} ->
+        {:error, reason}
+    end
+  end
+
+  def send_account_activation_email(%User{} = user) do
     Email.account_activation(user) |> Mailer.deliver_now()
+  end
+
+  def send_password_reset_email(%User{} = user) do
+    Email.password_reset(user) |> Mailer.deliver_now()
+  end
+
+  def delete_password_reset_hash(user) do
+    {:ok, user} =
+      user
+      |> User.password_hash_changeset(%{password_reset_hash: nil})
+      |> Repo.update()
+
+    user
   end
 end

@@ -1,0 +1,20 @@
+<h1>Reset password</h1>
+
+<div class="row">
+  <div class="col-md-6 col-md-offset-3">
+    <%= form_for @changeset, Routes.password_reset_path(@conn, :update, @password_reset_token), [method: :put], fn f -> %>
+      <%= content_tag :input, nil, type: "hidden", name: :email, value: @user.email %>
+      <%= content_tag :input, nil, type: "hidden", name: :password_reset_token, value: @password_reset_token %>
+
+      <%= label f, :password %>
+      <%= password_input f, :password, class: 'form-control' %>
+      <%= error_tag f, :password %>
+
+      <%= label f, :password_confirmation, "Confirmation" %>
+      <%= password_input f, :password_confirmation, class: 'form-control' %>
+      <%= error_tag f, :password_confirmation %>
+
+      <%= content_tag :input, nil, type: "submit", class: "btn btn-primary", value: "Update password" %>
+    <% end %>
+  </div>
+</div>

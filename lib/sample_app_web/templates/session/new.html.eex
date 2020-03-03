@@ -9,6 +9,7 @@
       <%= error_tag f, :email %>
 
       <%= label f, :password %>
+      <%= link "(forgot password)", to: Routes.password_reset_path(@conn, :new) %>
       <%= password_input f, :password, class: 'form-control' %>
       <%= error_tag f, :password %>
 
