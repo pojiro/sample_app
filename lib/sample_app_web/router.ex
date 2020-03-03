@@ -34,6 +34,7 @@ defmodule SampleAppWeb.Router do
     delete "/login", SessionController, :delete
 
     resources "/account_activation", AccountActivationController, only: [:edit]
+    resources "/password_reset", PasswordResetController, only: [:new, :create, :edit, :update]
   end
 
   # Other scopes may use custom stacks.

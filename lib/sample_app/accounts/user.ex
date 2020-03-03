@@ -8,6 +8,8 @@ defmodule SampleApp.Accounts.User do
     field :password, :string, virtual: true
     field :password_confirmation, :string, virtual: true
     field :password_hash, :string
+    field :password_reset_token, :string, virtual: true
+    field :password_reset_hash, :string
     field :remember_token, :string, virtual: true
     field :remember_hash, :string
     field :admin, :boolean
@@ -32,14 +34,25 @@ defmodule SampleApp.Accounts.User do
     |> unique_constraint(:email)
   end
 
-  def registration_changeset(user, attrs) do
+  def password_changeset(user, attrs) do
     user
-    |> changeset(attrs)
     |> cast(attrs, [:password])
     |> validate_required([:password])
     |> validate_length(:password, min: 6, max: 100)
     |> validate_confirmation(:password, message: "does not match password")
     |> put_pass_hash()
+  end
+
+  def registration_changeset(user, attrs) do
+    user
+    |> changeset(attrs)
+    |> password_changeset(attrs)
+
+    # |> cast(attrs, [:password])
+    # |> validate_required([:password])
+    # |> validate_length(:password, min: 6, max: 100)
+    # |> validate_confirmation(:password, message: "does not match password")
+    # |> put_pass_hash()
   end
 
   def registration_with_activation_token_changeset(user, attrs) do
@@ -69,6 +82,18 @@ defmodule SampleApp.Accounts.User do
     user
     |> cast(params, [:activated, :activated_at])
     |> validate_required([:activated])
+  end
+
+  def password_reset_changeset(user, attrs \\ %{}) do
+    user
+    |> cast(attrs, [:password_reset_token])
+    |> validate_required([:password_reset_token])
+    |> put_password_reset_token_hash
+  end
+
+  def password_hash_changeset(user, attrs \\ %{}) do
+    user
+    |> cast(attrs, [:password_reset_hash])
   end
 
   defp put_pass_hash(changeset) do
@@ -101,6 +126,16 @@ defmodule SampleApp.Accounts.User do
     case changeset do
       %Ecto.Changeset{valid?: true, changes: %{activation_token: token}} ->
         put_change(changeset, :activation_hash, Pbkdf2.hash_pwd_salt(token))
+
+      _ ->
+        changeset
+    end
+  end
+
+  defp put_password_reset_token_hash(changeset) do
+    case changeset do
+      %Ecto.Changeset{valid?: true, changes: %{password_reset_token: token}} ->
+        put_change(changeset, :password_reset_hash, Pbkdf2.hash_pwd_salt(token))
 
       _ ->
         changeset

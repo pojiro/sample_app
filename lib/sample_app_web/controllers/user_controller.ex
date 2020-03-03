@@ -24,7 +24,7 @@ defmodule SampleAppWeb.UserController do
 
     case Accounts.register_user_with_activation_token(user_params) do
       {:ok, user} ->
-        Accounts.send_account_activation_email_to_user(user)
+        Accounts.send_account_activation_email(user)
 
         conn
         |> put_flash(:info, "Please check your email to activate your account.")
