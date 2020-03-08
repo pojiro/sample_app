@@ -1,0 +1,4 @@
+<%= if Enum.count(@microposts) > 0 do %>
+  <%= render SampleAppWeb.PartialView, "micropost.html", assigns  %>
+  <%= pagination_links @conn, @microposts, [], path: &Routes.static_page_path/3, action: :home %>
+<% end %>

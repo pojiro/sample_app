@@ -42,6 +42,7 @@ defmodule SampleAppWeb do
 
       import SampleAppWeb.ErrorHelpers
       import SampleAppWeb.Gettext
+      import Scrivener.HTML
       alias SampleAppWeb.Router.Helpers, as: Routes
     end
   end

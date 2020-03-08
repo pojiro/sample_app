@@ -51,7 +51,8 @@ defmodule SampleApp.MixProject do
       {:scrivener, "~> 2.0"},
       {:scrivener_ecto, "~> 2.0"},
       {:scrivener_html, "~> 1.8"},
-      {:bamboo, "~> 1.4"}
+      {:bamboo, "~> 1.4"},
+      {:floki, "~> 0.26.0", only: [:test]}
     ]
   end
 

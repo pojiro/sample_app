@@ -1,0 +1,22 @@
+<%= form_for @changeset, Routes.micropost_path(@conn, :create), [multipart: true], fn f-> %>
+  <div class="field">
+    <%= textarea f, :content, placeholder: "Compose new micropost..." %>
+    <%= error_tag f, :content %>
+  </div>
+  <span class="picture">
+    <%= file_input f, :picture, class: "form-control" %>
+    <%= error_tag f, :picture %>
+  </span>
+  <%= content_tag :input, nil, type: "submit", class: "btn btn-primary", value: "Post" %>
+<% end %>
+
+<script type="text/javascript">
+  window.onload = function(){
+    jQuery("#micropost_picture").bind("change", function() {
+      let size_in_megabytes = this.files[0].size/1024/1024;
+       if (size_in_megabytes > 5) {
+         alert('Maximum file size is 2MB. Please choose a smaller file.');
+       }
+    })
+  }
+</script>

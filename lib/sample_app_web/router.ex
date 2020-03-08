@@ -35,6 +35,7 @@ defmodule SampleAppWeb.Router do
 
     resources "/account_activation", AccountActivationController, only: [:edit]
     resources "/password_reset", PasswordResetController, only: [:new, :create, :edit, :update]
+    resources "/microposts", MicropostController, only: [:create, :delete]
   end
 
   # Other scopes may use custom stacks.

@@ -1,0 +1,23 @@
+<ol class="microposts">
+  <%= for micropost <- @microposts do %>
+    <li id="micropost-<%= micropost.id %>">
+      <%= link gravatar_for(micropost.user, size: 50), to: Routes.user_path(@conn, :show, micropost.user) %>
+      <span class="user"><%= link micropost.user.name, to: Routes.user_path(@conn, :show, micropost.user) %></span>
+      <span class="content">
+        <%= micropost.content %>
+        <%= if micropost.picture do %>
+          <%= img_tag "uploads/#{micropost.picture}", style: "width: 300px;" %>
+        <% end %>
+      </span>
+      <span class="timestamp">
+        Posted at <%= micropost.inserted_at %> (UTC).
+        <%= if @conn.assigns.current_user.id == micropost.user_id do %>
+          <%= link "delete",
+          to: Routes.micropost_path(@conn, :delete, micropost),
+          method: :delete,
+          data: [confirm: "Are you sure?"] %>
+        <% end %>
+      </span>
+    </li>
+  <% end %>
+</ol>

@@ -1,6 +1,6 @@
 defmodule SampleApp.Helper do
   @doc false
-  def generate_onetime_token(length \\ 64) do
+  def random_string(length \\ 64) do
     # see https://github.com/phoenixframework/phoenix/blob/master/lib/mix/tasks/phx.gen.secret.ex
     # literal copy of mix phx.gen.secret implementation.
     :crypto.strong_rand_bytes(length) |> Base.encode64() |> binary_part(0, length)

@@ -78,7 +78,7 @@ defmodule SampleApp.Accounts do
 
   @doc false
   def register_user_with_activation_token(attrs \\ %{}) do
-    token = SampleApp.Helper.generate_onetime_token()
+    token = SampleApp.Helper.random_string()
     signed_token = Phoenix.Token.sign(SampleAppWeb.Endpoint, @activation_token_salt, token)
     attrs = Map.put(attrs, :activation_token, signed_token)
 
@@ -175,7 +175,7 @@ defmodule SampleApp.Accounts do
 
   @doc false
   def password_reset(%User{} = user) do
-    token = SampleApp.Helper.generate_onetime_token()
+    token = SampleApp.Helper.random_string()
     signed_token = Phoenix.Token.sign(SampleAppWeb.Endpoint, @password_reset_token_salt, token)
 
     user

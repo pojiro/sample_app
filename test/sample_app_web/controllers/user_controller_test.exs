@@ -38,10 +38,22 @@ defmodule SampleAppWeb.UserControllerTest do
   describe "show" do
     setup [:create_user]
 
-    test "user", %{conn: conn, user: user} do
+    test "user has 20 microposts", %{conn: conn, user: user} do
+      Enum.each(1..20, fn _ ->
+        SampleApp.Multimedia.create_micropost(%{
+          content: Faker.Lorem.sentence(5),
+          user_id: user.id
+        })
+      end)
+
       logged_in_conn = login(conn, user)
       conn = get(logged_in_conn, Routes.user_path(conn, :show, user))
-      assert html_response(conn, 200) =~ user.name
+
+      parsed_html = Floki.parse_document!(html_response(conn, 200))
+      assert Floki.find(parsed_html, "h1") |> Floki.text() =~ user.name
+      assert Floki.find(parsed_html, "h1 img.gravatar")
+      assert Floki.find(parsed_html, "ol.microposts li") |> Enum.count() == 20
+      assert Floki.find(parsed_html, "ul.pagination li.active") |> Floki.text() == "1"
     end
 
     test "should redirect show when not logged in", %{conn: conn, user: user} do
@@ -236,9 +248,11 @@ defmodule SampleAppWeb.UserControllerTest do
   end
 
   defp create_user(_) do
+    user = activated_user_fixture(user_attrs(:michael))
+
     {
       :ok,
-      user: activated_user_fixture(user_attrs(:michael)),
+      user: user,
       other_user: activated_user_fixture(user_attrs(:archer)),
       admin_user: activated_admin_user_fixture()
     }
