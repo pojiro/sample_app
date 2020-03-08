@@ -8,6 +8,7 @@ defmodule SampleAppWeb.UserController do
 
   alias SampleApp.Accounts
   alias SampleApp.Accounts.User
+  alias SampleApp.Multimedia
 
   def index(conn, params) do
     users = Accounts.list_by_page(params)
@@ -31,13 +32,14 @@ defmodule SampleAppWeb.UserController do
         |> redirect(to: Routes.static_page_path(conn, :home))
 
       {:error, %Ecto.Changeset{} = changeset} ->
-        render(conn, "new.html", changeset: changeset)
+        render(conn, "new.html", changeset: changeset, page_title: "Sign up")
     end
   end
 
-  def show(conn, %{"id" => id}) do
+  def show(conn, %{"id" => id} = params) do
     user = Accounts.get_user!(id)
-    render(conn, "show.html", user: user, page_title: user.name)
+    microposts = Multimedia.list_microposts(user, params)
+    render(conn, "show.html", user: user, microposts: microposts, page_title: user.name)
   end
 
   def edit(conn, %{"id" => id}) do
@@ -57,7 +59,7 @@ defmodule SampleAppWeb.UserController do
         |> redirect(to: Routes.user_path(conn, :show, user))
 
       {:error, %Ecto.Changeset{} = changeset} ->
-        render(conn, "edit.html", user: user, changeset: changeset)
+        render(conn, "edit.html", user: user, changeset: changeset, page_title: "Edit user")
     end
   end
 

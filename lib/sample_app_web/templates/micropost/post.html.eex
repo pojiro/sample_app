@@ -1,0 +1,14 @@
+<div class="row">
+  <aside class="col-md-4">
+    <section class="user_info">
+      <%= render SampleAppWeb.PartialView, "user_info.html", assigns %>
+    </section>
+    <section class="micropost_form">
+      <%= render SampleAppWeb.PartialView, "micropost_form.html", assigns %>
+    </section>
+  </aside>
+  <div class="col-md-8">
+    <h3>Micropost Feed</h3>
+    <%= render SampleAppWeb.PartialView, "feed.html", assigns %>
+  </div>
+</div>

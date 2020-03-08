@@ -53,7 +53,7 @@ defmodule SampleAppWeb.Auth do
   end
 
   def remember_user(conn, user, "true") do
-    token = SampleApp.Helper.generate_onetime_token()
+    token = SampleApp.Helper.random_string()
     signed_user_id = Phoenix.Token.sign(conn, @remember_token_salt, user.id)
 
     {:ok, user} = SampleApp.Accounts.remember_user(user, %{remember_token: token})

@@ -17,6 +17,7 @@ defmodule SampleApp.Accounts.User do
     field :activation_hash, :string
     field :activated, :boolean
     field :activated_at, :naive_datetime
+    has_many :microposts, SampleApp.Multimedia.Micropost
 
     timestamps()
   end

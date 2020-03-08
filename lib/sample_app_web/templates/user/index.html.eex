@@ -5,7 +5,7 @@
 <ul class="users">
   <%= for user <- @users do %>
     <li>
-      <%= gravatar_for user, %{size: 50} %>
+      <%= gravatar_for user, size: 50 %>
       <%= link user.name, to: Routes.user_path(@conn, :show, user) %>
       <%= if @current_user.admin && @current_user.id != user.id do %>
         | <%= link "delete",

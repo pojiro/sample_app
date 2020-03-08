@@ -1,8 +1,19 @@
 defmodule SampleAppWeb.StaticPageController do
   use SampleAppWeb, :controller
 
-  def home(conn, _params) do
-    render(conn, "home.html")
+  alias SampleApp.{Multimedia, Multimedia.Micropost}
+
+  def home(conn, params) do
+    if SampleAppWeb.Auth.logged_in?(conn) do
+      changeset = Multimedia.change_micropost(%Micropost{})
+      microposts = Multimedia.list_microposts(conn.assigns.current_user, params)
+
+      conn
+      |> put_view(SampleAppWeb.MicropostView)
+      |> render(:post, changeset: changeset, microposts: microposts)
+    else
+      render(conn, :home)
+    end
   end
 
   def about(conn, _params) do

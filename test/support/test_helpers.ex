@@ -1,5 +1,5 @@
 defmodule SampleApp.TestHelpers do
-  alias SampleApp.{Accounts}
+  alias SampleApp.{Accounts, Multimedia}
   alias SampleAppWeb.Router.Helpers, as: Routes
 
   @endpoint SampleAppWeb.Endpoint
@@ -102,5 +102,41 @@ defmodule SampleApp.TestHelpers do
         "remember_me" => remember_me
       }
     })
+  end
+
+  def micropost_attrs(user) do
+    %{
+      orange: %{
+        content: "I just ate an orange!",
+        user_id: user.id,
+        inserted_at: ~N[2017-01-01 00:00:00]
+      },
+      tau_manifesto: %{
+        content: "Check out the @tauday site by @mhartl: http://tauday.com",
+        user_id: user.id,
+        inserted_at: ~N[2018-01-01 00:00:00]
+      },
+      cat_video: %{
+        content: "Sad cats are sad: http://youtu.be/PKffm2uI4dk",
+        user_id: user.id,
+        inserted_at: ~N[2019-01-01 00:00:00]
+      },
+      most_recent: %{
+        content: "Writing a short test",
+        user_id: user.id,
+        inserted_at: ~N[2020-01-01 00:00:00]
+      }
+    }
+  end
+
+  def micropost_attrs(user, name) when is_atom(name), do: micropost_attrs(user)[name]
+
+  def micropost_attrs(user, attrs) when is_map(attrs) do
+    Enum.into(attrs, micropost_attrs(user, :orange))
+  end
+
+  def micropost_fixture(user, name \\ :orange) when is_atom(name) do
+    {:ok, micropost} = Multimedia.create_micropost(micropost_attrs(user, name))
+    micropost
   end
 end
