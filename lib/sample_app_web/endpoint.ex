@@ -25,7 +25,7 @@ defmodule SampleAppWeb.Endpoint do
     only: ~w(css fonts images js favicon.ico robots.txt)
 
   plug Plug.Static,
-    at: "/uploads",
+    at: "/",
     from: "priv/uploads",
     gzip: false
 

@@ -9,6 +9,8 @@ defmodule SampleApp.Multimedia do
   alias SampleApp.Accounts.User
   alias SampleApp.Multimedia.Micropost
 
+  @upload_directory "priv/uploads"
+
   def change_micropost(%Micropost{} = micropost) do
     Micropost.changeset(micropost, %{})
   end
@@ -47,8 +49,9 @@ defmodule SampleApp.Multimedia do
       |> Repo.insert()
 
     case result do
-      {:ok, _} ->
-        :ok = File.cp!(picture.path, "priv/uploads/#{filename}")
+      {:ok, micropost} ->
+        picture_path = "#{@upload_directory}/#{micropost.picture}"
+        :ok = File.cp!(picture.path, picture_path)
         result
 
       {:error, _} ->
@@ -67,7 +70,7 @@ defmodule SampleApp.Multimedia do
   end
 
   def delete_micropost(%Micropost{} = micropost) do
-    picture_path = "priv/uploads/#{micropost.picture}"
+    picture_path = "#{@upload_directory}/#{micropost.picture}"
     if File.exists?(picture_path), do: File.rm!(picture_path)
     Repo.delete(micropost)
   end
