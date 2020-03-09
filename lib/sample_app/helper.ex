@@ -3,7 +3,7 @@ defmodule SampleApp.Helper do
   def random_string(length \\ 64) do
     # see https://github.com/phoenixframework/phoenix/blob/master/lib/mix/tasks/phx.gen.secret.ex
     # literal copy of mix phx.gen.secret implementation.
-    :crypto.strong_rand_bytes(length) |> Base.encode64() |> binary_part(0, length)
+    :crypto.strong_rand_bytes(length) |> Base.url_encode64() |> binary_part(0, length)
   end
 
   @doc false
