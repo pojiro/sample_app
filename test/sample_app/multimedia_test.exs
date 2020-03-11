@@ -30,8 +30,8 @@ defmodule SampleApp.MultimediaTest do
       {:ok, _micropost} = Multimedia.create_micropost(attr)
     end)
 
-    assert Enum.count(Multimedia.list_microposts()) > 0
+    assert Enum.any?(Multimedia.list_microposts())
     SampleApp.Accounts.delete_user(user)
-    assert Enum.count(Multimedia.list_microposts()) == 0
+    refute Enum.any?(Multimedia.list_microposts())
   end
 end

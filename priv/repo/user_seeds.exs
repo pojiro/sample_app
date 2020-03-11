@@ -38,3 +38,14 @@ User
        end)
      end
    )
+
+users = Accounts.list_users()
+user = List.first(users)
+
+users
+|> Enum.slice(1..-1)
+|> Enum.each(&(Accounts.create_relationship(%{follower_id: user.id, followed_id: (&1).id})))
+
+users
+|> Enum.slice(2..-10)
+|> Enum.each(&(Accounts.create_relationship(%{follower_id: (&1).id, followed_id: user.id})))

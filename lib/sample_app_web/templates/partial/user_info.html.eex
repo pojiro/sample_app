@@ -1,4 +1,4 @@
-<%= link gravatar_for(@current_user, size: 50), to: Routes.user_path(@conn, :show, @current_user) %>
-<h1><%= @current_user.name %></h1>
-<span><%= link "view my profile", to: Routes.user_path(@conn, :show, @current_user) %></span>
-<span><%= "#{@microposts.total_entries} micropost(s)" %></span>
+<%= link gravatar_for(@user, size: 50), to: Routes.user_path(@conn, :show, @user) %>
+<h1><%= @user.name %></h1>
+<span><%= link "view my profile", to: Routes.user_path(@conn, :show, @user) %></span>
+<span><%= "#{Enum.count(@user.microposts)} micropost(s)" %></span>

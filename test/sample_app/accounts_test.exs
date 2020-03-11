@@ -98,5 +98,24 @@ defmodule SampleApp.AccountsTest do
                  max_age: -10
                )
     end
+
+    test "follow" do
+      user = activated_user_fixture(:michael)
+      other = activated_user_fixture(:archer)
+
+      assert {:ok, _} =
+               Accounts.create_relationship(%{follower_id: user.id, followed_id: other.id})
+    end
+
+    test "unfollow" do
+      user = activated_user_fixture(:michael)
+      other = activated_user_fixture(:archer)
+
+      assert {:ok, _} =
+               Accounts.create_relationship(%{follower_id: user.id, followed_id: other.id})
+
+      relationship = Accounts.get_relationship_by(%{follower_id: user.id, followed_id: other.id})
+      assert {:ok, _} = Accounts.delete_relationship(relationship)
+    end
   end
 end

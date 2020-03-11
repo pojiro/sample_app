@@ -1,0 +1,9 @@
+<%= if @current_user.id != @user.id do %>
+  <div id="follow_form">
+  <%= if SampleApp.Accounts.following?(@current_user, @user) do %>
+    <%= render(SampleAppWeb.PartialView, "unfollow.html", assigns) %>
+  <% else %>
+    <%= render(SampleAppWeb.PartialView, "follow.html", assigns) %>
+  <% end %>
+  </div>
+<% end %>

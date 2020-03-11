@@ -27,7 +27,11 @@ defmodule SampleAppWeb.Router do
 
     get "/signup", UserController, :new
     post "/signup", UserController, :create
-    resources "/users", UserController, except: [:new, :create]
+
+    resources "/users", UserController, except: [:new, :create] do
+      get "/following", UserController, :following, as: :follow
+      get "/followers", UserController, :followers, as: :follow
+    end
 
     get "/login", SessionController, :new
     post "/login", SessionController, :create
@@ -36,6 +40,7 @@ defmodule SampleAppWeb.Router do
     resources "/account_activation", AccountActivationController, only: [:edit]
     resources "/password_reset", PasswordResetController, only: [:new, :create, :edit, :update]
     resources "/microposts", MicropostController, only: [:create, :delete]
+    resources "/relationships", RelationshipController, only: [:create, :delete]
   end
 
   # Other scopes may use custom stacks.

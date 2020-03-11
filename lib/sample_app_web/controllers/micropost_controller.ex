@@ -35,7 +35,7 @@ defmodule SampleAppWeb.MicropostController do
 
   defp create_impl(conn, params, impl_params) do
     case Multimedia.create_micropost(impl_params) do
-      {:ok, micropost} ->
+      {:ok, _micropost} ->
         conn
         |> put_flash(:success, "Micropost created!")
         |> redirect(to: Routes.static_page_path(conn, :home))
@@ -44,10 +44,8 @@ defmodule SampleAppWeb.MicropostController do
         microposts = Multimedia.list_microposts(conn.assigns.current_user, params)
 
         conn
-        # |> put_view(SampleAppWeb.StaticPageView)
-        # |> redirect(to: Routes.static_page_path(conn, :home))
-        |> put_view(SampleAppWeb.MicropostView)
-        |> render(:post, changeset: changeset, microposts: microposts)
+        |> put_view(SampleAppWeb.StaticPageView)
+        |> render(:logged_in_home, changeset: changeset, microposts: microposts)
     end
   end
 

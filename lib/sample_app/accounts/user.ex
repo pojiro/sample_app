@@ -19,6 +19,17 @@ defmodule SampleApp.Accounts.User do
     field :activated_at, :naive_datetime
     has_many :microposts, SampleApp.Multimedia.Micropost
 
+    has_many :active_relationships, SampleApp.Accounts.Relationship,
+      foreign_key: :follower_id,
+      on_delete: :delete_all
+
+    has_many :passive_relationships, SampleApp.Accounts.Relationship,
+      foreign_key: :followed_id,
+      on_delete: :delete_all
+
+    has_many :following, through: [:active_relationships, :followed]
+    has_many :followers, through: [:passive_relationships, :follower]
+
     timestamps()
   end
 

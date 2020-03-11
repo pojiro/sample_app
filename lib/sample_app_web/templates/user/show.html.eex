@@ -4,13 +4,16 @@
       <h1>
         <%= gravatar_for @user %>
         <%= @user.name %>
-        <%= String.length(@user.name) %>
       </h1>
+    </section>
+    <section class="stats">
+      <%= render SampleAppWeb.PartialView, "stats.html", assigns %>
     </section>
   </aside>
   <div class="col-md-8">
-    <%= if Enum.count(@microposts) > 0 do %>
-      <h3>Microposts (<%= Enum.count(@microposts) %>)</h3>
+    <%= render SampleAppWeb.PartialView, "follow_form.html", assigns %>
+    <%= if Enum.any?(@user.microposts) do %>
+      <h3>Microposts (<%= Enum.count(@user.microposts) %>)</h3>
       <%= render SampleAppWeb.PartialView, "micropost.html", assigns  %>
       <%= pagination_links @conn, @microposts, [@user.id], path: &Routes.user_path/4, action: :show %>
     <% end %>

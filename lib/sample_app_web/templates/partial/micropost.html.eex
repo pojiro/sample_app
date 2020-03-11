@@ -11,7 +11,7 @@
       </span>
       <span class="timestamp">
         Posted at <%= micropost.inserted_at %> (UTC).
-        <%= if @conn.assigns.current_user.id == micropost.user_id do %>
+        <%= if @current_user.id == micropost.user.id do %>
           <%= link "delete",
           to: Routes.micropost_path(@conn, :delete, micropost),
           method: :delete,

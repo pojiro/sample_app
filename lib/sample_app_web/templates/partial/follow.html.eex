@@ -1,0 +1,5 @@
+<% attrs = %{follower_id: @current_user.id, followed_id: @user.id} %>
+<%= form_for @conn, Routes.relationship_path(@conn, :create, attrs), fn f -> %>
+  <div><%= hidden_input f, :followed_id, value: @user.id %></div>
+  <%= content_tag :input, nil, type: "submit", class: "btn btn-primary", value: "Follow" %>
+<% end %>

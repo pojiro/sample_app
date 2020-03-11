@@ -1,0 +1,29 @@
+<div class="row">
+  <aside class="col-md-4">
+    <section class="user_info">
+      <%= gravatar_for @user %>
+      <h1><%= @user.name %></h1>
+      <span><%= link "view my profile", to: Routes.user_path(@conn, :show, @user) %></span>
+      <span><b>Microposts:</b> <%= Enum.count(@user.microposts) %></span>
+    </section>
+    <section class="stats">
+      <%= render SampleAppWeb.PartialView, "stats.html", assigns %>
+      <%= if Enum.any?(@users) do %>
+        <div class="user_avatars">
+          <%= for user <- @users do %>
+            <%= link gravatar_for(user, size: 30), to: Routes.user_path(@conn, :show, user) %>
+          <% end %>
+        </div>
+      <% end %>
+    </section>
+  </aside>
+  <div class="col-md-8">
+    <h3><%= @page_title %></h3>
+    <%= if Enum.any?(@users) do %>
+      <ul class="users follow">
+        <%= render SampleAppWeb.PartialView, "micropost.html", assigns %>
+      </ul>
+      <%= pagination_links @conn, @microposts, [@user.id], path: &Routes.user_follow_path/4, action: @action %>
+    <% end %>
+  </div>
+</div>

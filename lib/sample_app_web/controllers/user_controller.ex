@@ -1,6 +1,9 @@
 defmodule SampleAppWeb.UserController do
   use SampleAppWeb, :controller
-  plug :logged_in_user when action in [:index, :show, :edit, :update, :delete]
+
+  plug :logged_in_user
+       when action in [:index, :show, :edit, :update, :delete, :following, :followers]
+
   plug :correct_user when action in [:edit, :update]
   plug :admin_user when action in [:delete]
 
@@ -37,7 +40,7 @@ defmodule SampleAppWeb.UserController do
   end
 
   def show(conn, %{"id" => id} = params) do
-    user = Accounts.get_user!(id)
+    user = Accounts.get_user!(id) |> Accounts.set_relations()
     microposts = Multimedia.list_microposts(user, params)
     render(conn, "show.html", user: user, microposts: microposts, page_title: user.name)
   end
@@ -70,5 +73,33 @@ defmodule SampleAppWeb.UserController do
     conn
     |> put_flash(:info, "User deleted")
     |> redirect(to: Routes.user_path(conn, :index))
+  end
+
+  def following(conn, %{"user_id" => id} = params) do
+    user = Accounts.get_user!(id) |> Accounts.set_relations()
+    microposts = SampleApp.Multimedia.list_microposts(user.following, params)
+    action = elem(__ENV__.function, 0)
+
+    render(conn, "show_follow.html",
+      user: user,
+      users: user.following,
+      microposts: microposts,
+      action: action,
+      page_title: "Following"
+    )
+  end
+
+  def followers(conn, %{"user_id" => id} = params) do
+    user = Accounts.get_user!(id) |> Accounts.set_relations()
+    microposts = SampleApp.Multimedia.list_microposts(user.followers, params)
+    action = elem(__ENV__.function, 0)
+
+    render(conn, "show_follow.html",
+      user: user,
+      users: user.followers,
+      microposts: microposts,
+      action: action,
+      page_title: "Followers"
+    )
   end
 end

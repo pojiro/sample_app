@@ -247,12 +247,71 @@ defmodule SampleAppWeb.UserControllerTest do
     end
   end
 
-  defp create_user(_) do
-    user = activated_user_fixture(user_attrs(:michael))
+  describe "following and followers" do
+    setup do
+      user = activated_user_fixture(:michael)
+      other = activated_user_fixture(:archer)
+      admin = activated_admin_user_fixture()
+      {:ok, user: user, other: other, admin: admin}
+    end
 
+    test "should redirect following when not logged in", %{conn: conn, user: user} do
+      conn = get(conn, Routes.user_follow_path(conn, :following, user))
+      assert redirected_to(conn, 302) == Routes.session_path(conn, :new)
+    end
+
+    test "should redirect followers when not logged in", %{conn: conn, user: user} do
+      conn = get(conn, Routes.user_follow_path(conn, :followers, user))
+      assert redirected_to(conn, 302) == Routes.session_path(conn, :new)
+    end
+
+    test "following page, user follows other", %{conn: conn, user: user, other: other} do
+      logged_in_conn = login(conn, user)
+
+      conn = get(logged_in_conn, Routes.user_follow_path(conn, :following, user))
+      parsed_html = Floki.parse_document!(html_response(conn, 200))
+      assert Floki.find(parsed_html, "#following") |> Floki.text() =~ "0"
+      assert Floki.find(parsed_html, "#followers") |> Floki.text() =~ "0"
+      refute Floki.find(parsed_html, "a[href=\"/users/#{other.id}\"]") |> Enum.any?()
+
+      post(logged_in_conn, Routes.relationship_path(conn, :create), %{
+        follower_id: user.id,
+        followed_id: other.id
+      })
+
+      conn = get(logged_in_conn, Routes.user_follow_path(conn, :following, user))
+      parsed_html = Floki.parse_document!(html_response(conn, 200))
+      assert Floki.find(parsed_html, "#following") |> Floki.text() =~ "1"
+      assert Floki.find(parsed_html, "#followers") |> Floki.text() =~ "0"
+      assert Floki.find(parsed_html, "a[href=\"/users/#{other.id}\"]") |> Enum.any?()
+    end
+
+    test "followers page, user follows other", %{conn: conn, user: user, other: other} do
+      logged_in_conn = login(conn, user)
+
+      conn = get(logged_in_conn, Routes.user_follow_path(conn, :followers, user))
+      parsed_html = Floki.parse_document!(html_response(conn, 200))
+      assert Floki.find(parsed_html, "#following") |> Floki.text() =~ "0"
+      assert Floki.find(parsed_html, "#followers") |> Floki.text() =~ "0"
+      refute Floki.find(parsed_html, "a[href=\"/users/#{other.id}\"]") |> Enum.any?()
+
+      post(logged_in_conn, Routes.relationship_path(conn, :create), %{
+        follower_id: user.id,
+        followed_id: other.id
+      })
+
+      conn = get(logged_in_conn, Routes.user_follow_path(conn, :followers, user))
+      parsed_html = Floki.parse_document!(html_response(conn, 200))
+      assert Floki.find(parsed_html, "#following") |> Floki.text() =~ "1"
+      assert Floki.find(parsed_html, "#followers") |> Floki.text() =~ "0"
+      refute Floki.find(parsed_html, "a[href=\"/users/#{other.id}\"]") |> Enum.any?()
+    end
+  end
+
+  defp create_user(_) do
     {
       :ok,
-      user: user,
+      user: activated_user_fixture(user_attrs(:michael)),
       other_user: activated_user_fixture(user_attrs(:archer)),
       admin_user: activated_admin_user_fixture()
     }
