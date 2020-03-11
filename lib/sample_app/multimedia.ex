@@ -6,7 +6,7 @@ defmodule SampleApp.Multimedia do
   import Ecto.Query, warn: false
   alias SampleApp.Repo
 
-  alias SampleApp.Accounts.User
+  alias SampleApp.Accounts.{User, Relationship}
   alias SampleApp.Multimedia.Micropost
 
   @upload_directory "priv/uploads"
@@ -30,9 +30,29 @@ defmodule SampleApp.Multimedia do
   def list_microposts(%User{} = user, params) do
     Micropost
     |> where([m], m.user_id == ^user.id)
-    |> join(:inner, [m], u in User, on: m.user_id == u.id)
     |> preload(:user)
     |> order_by([m], desc: m.inserted_at)
+    |> Repo.paginate(params)
+  end
+
+  def list_microposts(users, params) when is_list(users) do
+    Enum.reduce(users, Micropost, &or_where(&2, [m], m.user_id == ^&1.id))
+    |> preload(:user)
+    |> order_by([m], desc: m.inserted_at)
+    |> Repo.paginate(params)
+  end
+
+  def list_micropost_feed(%User{} = user, params) do
+    Micropost
+    |> or_where(
+      [m],
+      m.user_id in fragment(
+        "SELECT followed_id FROM relationships WHERE follower_id = ?",
+        ^user.id
+      )
+    )
+    |> or_where([m], m.user_id == ^user.id)
+    |> preload(:user)
     |> Repo.paginate(params)
   end
 

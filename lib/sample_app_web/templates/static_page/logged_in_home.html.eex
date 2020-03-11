@@ -3,6 +3,9 @@
     <section class="user_info">
       <%= render SampleAppWeb.PartialView, "user_info.html", assigns %>
     </section>
+    <section class="stats">
+      <%= render SampleAppWeb.PartialView, "stats.html", assigns %>
+    </section>
     <section class="micropost_form">
       <%= render SampleAppWeb.PartialView, "micropost_form.html", assigns %>
     </section>

@@ -6,7 +6,8 @@ defmodule SampleApp.Accounts do
   import Ecto.Query, warn: false
   alias SampleApp.Repo
 
-  alias SampleApp.Accounts.User
+  alias SampleApp.Accounts.{User, Relationship}
+  alias SampleApp.Multimedia.Micropost
   alias SampleAppWeb.{Email, Mailer}
 
   @activation_token_max_age {:max_age, 24 * 60 * 60}
@@ -47,6 +48,10 @@ defmodule SampleApp.Accounts do
 
   """
   def get_user!(id), do: Repo.get!(User, id)
+
+  def set_relations(%User{} = user) do
+    Repo.preload(user, [:microposts, :following, :followers])
+  end
 
   @doc false
   def get_user_by(params), do: Repo.get_by(User, params)
@@ -258,5 +263,35 @@ defmodule SampleApp.Accounts do
       |> Repo.update()
 
     user
+  end
+
+  def get_relationship!(id) do
+    Repo.get!(Relationship, id)
+  end
+
+  def get_relationship_by(attrs) do
+    Repo.get_by(Relationship, attrs)
+  end
+
+  # follow
+  def create_relationship(attrs) do
+    %Relationship{}
+    |> Relationship.changeset(attrs)
+    |> Repo.insert()
+  end
+
+  # unfollow
+  def delete_relationship(%Relationship{} = relationship) do
+    Repo.delete(relationship)
+  end
+
+  def following?(%User{} = follower, %User{} = followed) do
+    case get_relationship_by(%{
+           follower_id: follower.id,
+           followed_id: followed.id
+         }) do
+      nil -> false
+      _ -> true
+    end
   end
 end
