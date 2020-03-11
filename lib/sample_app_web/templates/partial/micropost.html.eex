@@ -6,7 +6,7 @@
       <span class="content">
         <%= micropost.content %>
         <%= if micropost.picture do %>
-          <%= img_tag "#{micropost.picture}", style: "width: 300px;" %>
+          <%= img_tag "/#{micropost.picture}", style: "width: 300px;" %>
         <% end %>
       </span>
       <span class="timestamp">
