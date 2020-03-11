@@ -53,6 +53,7 @@ defmodule SampleApp.Multimedia do
     )
     |> or_where([m], m.user_id == ^user.id)
     |> preload(:user)
+    |> order_by([m], desc: m.inserted_at)
     |> Repo.paginate(params)
   end
 
